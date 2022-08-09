@@ -1,4 +1,3 @@
-from os import nice
 import cv2
 import argparse
 import random
@@ -7,6 +6,7 @@ import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--filePath", type=str, default="./2950")
+parser.add_argument("--chouseFunction", type=int, help="1.random each pixel, 2.random same color space, 3.change to HSV", required=True)
 
 def randomColorWithEachPixel(imgOrigin, imgSeg):
     '''
@@ -60,18 +60,41 @@ def randomColorWithSameColorSpace(imgOrigin, imgSeg):
                 imgNew[i,j] = newColor
     return imgNew    
 
-
+def changeColorBGRtoHSV(imgOrigin, imgSeg):
+    '''
+    indtoduce
+        This function is use to change oil area to the HSV color space
+    input
+        imgOrigin: The image befor random set the new color
+        imgSeg: The image use segmentation to get the different tag
+    output
+        imgNew: The image after change to HSV color space
+    '''
+    imgHSV = cv2.cvtColor(imgOrigin, cv2.COLOR_BGR2HSV)
+    imgNew = imgOrigin.copy()
+    w, h ,_ = imgOrigin.shape
+    
+    for i in range(w):
+        for j in range(h):
+            # 24 is the tag for oil segmentation
+            if(imgSeg[i, j, 0] == 24):
+                imgNew[i,j] = imgHSV[i,j]
+    return imgNew    
 
 def main(args):
     imgPath = args.filePath
     imgOrigin = cv2.imread(imgPath + "Origin.png")
     imgSeg = cv2.imread(imgPath + "Seg.png")
-    # imgPixel = randomColorWithEachPixel(imgOrigin, imgSeg)
-    # cv2.imwrite(args.filePath + "EachPixel.png", imgPixel)
-    for i in range(5):
-        imgSameColor = randomColorWithSameColorSpace(imgOrigin, imgSeg)
-        cv2.imwrite(args.filePath + "SameColor"+str(i)+".png", imgSameColor)
-
+    if(args.chouseFunction == 1):
+        imgPixel = randomColorWithEachPixel(imgOrigin, imgSeg)
+        cv2.imwrite(args.filePath + "EachPixel.png", imgPixel)
+    elif(args.chouseFunction == 2):
+        for i in range(5):
+            imgSameColor = randomColorWithSameColorSpace(imgOrigin, imgSeg)
+            cv2.imwrite(args.filePath + "SameColor"+str(i)+".png", imgSameColor)
+    elif(args.chouseFunction == 3):
+        imgBGR2HSV = changeColorBGRtoHSV(imgOrigin, imgSeg)
+        cv2.imwrite(args.filePath + "HSV.png", imgBGR2HSV)
 
 if __name__ == '__main__':
     args = parser.parse_args()
