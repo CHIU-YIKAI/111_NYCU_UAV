@@ -95,14 +95,17 @@ def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg):
     imgNew = imgOrigin.copy()
     w, h ,_ = imgOrigin.shape
     randomH = random.uniform(0, 2)
+    randomS = random.uniform(0, 2)
     randomV = random.uniform(0, 2)
     for i in range(w):
         for j in range(h):
             # 24 is the tag for oil segmentation
             if(imgSeg[i, j, 0] == 24):
                 imgHSV[i,j,0] = int(pow((imgHSV[i,j,0] / 180), randomH) * 180)
-                imgHSV[i,j,0] = int(pow((imgHSV[i,j,1] / 255), randomV) * 255)
-                imgNew[i,j] = imgHSV[i,j]
+                imgHSV[i,j,1] = int(pow((imgHSV[i,j,1] / 255), randomS) * 255)
+                
+                # imgHSV[i,j,2] = int(pow((imgHSV[i,j,2] / 255), randomV) * 255)
+    imgNew = cv2.cvtColor(imgHSV, cv2.COLOR_HSV2BGR)
     return imgNew    
 
 
