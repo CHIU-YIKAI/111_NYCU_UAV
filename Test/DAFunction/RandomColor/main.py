@@ -6,8 +6,8 @@ import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--filePath", type=str, default="./2950")
-parser.add_argument("--chouseFunction", type=int, help="1.random each pixel, 2.random same color space, 3.change to HSV", required=True)
-
+parser.add_argument("--chouseFunction", type=int, required=True)
+parser.add_argument("--printFunctionCode", type==bool, default=0)
 def randomColorWithEachPixel(imgOrigin, imgSeg):
     '''
     indtoduce
@@ -60,6 +60,35 @@ def randomColorWithSameColorSpace(imgOrigin, imgSeg):
                 imgNew[i,j] = newColor
     return imgNew    
 
+def randomOneColorWithSameColorSpace(imgOrigin, imgSeg):
+    '''
+    indtoduce
+        This function is use to set the random color to the origin image based on segmentation resul twith same color space
+        use power
+    input
+        imgOrigin: The image befor random set the new color
+        imgSeg: The image use segmentation to get the different tag
+    output
+        imgNew: The image after random set the new color
+    '''
+    imgNew = imgOrigin.copy()
+    w, h ,_ = imgOrigin.shape
+    randomValue = random.uniform(0,1.5)
+    
+    for i in range(w):
+        for j in range(h):
+            # 24 is the tag for oil segmentation
+            if(imgSeg[i, j, 0] == 24):
+                
+                imgB = int(pow((imgOrigin[i,j,0] / 255), randomValue) * 255)
+                imgG = int(pow((imgOrigin[i,j,1] / 255), randomValue) * 255)
+                imgR = int(pow((imgOrigin[i,j,2] / 255), randomValue) * 255)
+
+                newColor = [imgB, imgG, imgR]
+
+                imgNew[i,j] = newColor
+    return imgNew    
+    
 def changeColorBGRtoHSV(imgOrigin, imgSeg):
     '''
     indtoduce
@@ -108,7 +137,6 @@ def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg):
     imgNew = cv2.cvtColor(imgHSV, cv2.COLOR_HSV2BGR)
     return imgNew    
 
-
 def main(args):
     imgPath = args.filePath
     imgOrigin = cv2.imread(imgPath + "Origin.png")
@@ -121,12 +149,23 @@ def main(args):
             imgSameColor = randomColorWithSameColorSpace(imgOrigin, imgSeg)
             cv2.imwrite(args.filePath + "SameColor" + str(i) + ".png", imgSameColor)
     elif(args.chouseFunction == 3):
+        for i in range(5):
+            imgSameColor = randomOneColorWithSameColorSpace(imgOrigin, imgSeg)
+            cv2.imwrite(args.filePath + "RandomOneSameColor" + str(i) + ".png", imgSameColor)
+    elif(args.chouseFunction == 4):
         imgBGR2HSV = changeColorBGRtoHSV(imgOrigin, imgSeg)
         cv2.imwrite(args.filePath + "HSV.png", imgBGR2HSV)
-    elif(args.chouseFunction == 4):
+    elif(args.chouseFunction == 5):
         for i in range(5):
             imgBGR2HSVRandom = changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg)
             cv2.imwrite(args.filePath + "HSVRandom" + str(i) + ".png", imgBGR2HSVRandom)
+
 if __name__ == '__main__':
     args = parser.parse_args()
+    if (args.printFunctionCode):
+       print("1.random each pixel")
+       print("2.random same color space for each BGR")
+       print("3.random same color space with one random")
+       print("4.change BGR color space to HSV color space")
+       print("5.change BGR to HSV and use random to change the color")
     main(args)
