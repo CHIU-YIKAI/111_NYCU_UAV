@@ -1,13 +1,14 @@
 import cv2
 import argparse
 import random
-
-
+import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--filePath", type=str, default="./2950")
+parser.add_argument("--originImgFolder", type=str, default="./cityscapes/JPEGImage/")
+parser.add_argument("--segImgFolder", type=str, default="./finish/")
+parser.add_argument("--saveName", type=str, default="./data")
 parser.add_argument("--chouseFunction", type=int, required=True)
-parser.add_argument("--printFunctionCode", type==bool, default=0)
+
 def randomColorWithEachPixel(imgOrigin, imgSeg):
     '''
     indtoduce
@@ -32,8 +33,7 @@ def randomColorWithEachPixel(imgOrigin, imgSeg):
 def randomColorWithSameColorSpace(imgOrigin, imgSeg):
     '''
     indtoduce
-        This function is use to set the random color to the origin image based on segmentation resul twith same color space
-        use power
+        This function is use to set the random color to the origin image based on segmentation resul twith same color space use power
     input
         imgOrigin: The image befor random set the new color
         imgSeg: The image use segmentation to get the different tag
@@ -138,34 +138,62 @@ def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg):
     return imgNew    
 
 def main(args):
-    imgPath = args.filePath
-    imgOrigin = cv2.imread(imgPath + "Origin.png")
-    imgSeg = cv2.imread(imgPath + "Seg.png")
-    if(args.chouseFunction == 1):
-        imgPixel = randomColorWithEachPixel(imgOrigin, imgSeg)
-        cv2.imwrite(args.filePath + "EachPixel.png", imgPixel)
-    elif(args.chouseFunction == 2):
-        for i in range(5):
-            imgSameColor = randomColorWithSameColorSpace(imgOrigin, imgSeg)
-            cv2.imwrite(args.filePath + "SameColor" + str(i) + ".png", imgSameColor)
-    elif(args.chouseFunction == 3):
-        for i in range(5):
-            imgSameColor = randomOneColorWithSameColorSpace(imgOrigin, imgSeg)
-            cv2.imwrite(args.filePath + "RandomOneSameColor" + str(i) + ".png", imgSameColor)
-    elif(args.chouseFunction == 4):
-        imgBGR2HSV = changeColorBGRtoHSV(imgOrigin, imgSeg)
-        cv2.imwrite(args.filePath + "HSV.png", imgBGR2HSV)
-    elif(args.chouseFunction == 5):
-        for i in range(5):
-            imgBGR2HSVRandom = changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg)
-            cv2.imwrite(args.filePath + "HSVRandom" + str(i) + ".png", imgBGR2HSVRandom)
+    
+    originImgPath = args.originImgFolder
+    segImgPath = args.segImgFolder
 
+    filelist = os.listdir(originImgPath)
+    segFileList = os.listdir(segImgPath)
+    f = open(args.saveName + "list.lst", 'w')
+
+    for i, filePath in enumerate(filelist):
+        imgOrigin = cv2.imread(originImgPath + filePath)
+        imgSeg = cv2.imread(segImgPath + segFileList[i])
+        print(originImgPath + filePath + "\t." + segImgPath + segFileList[i])
+
+        if(args.chouseFunction == 1):
+            imgPixel = randomColorWithEachPixel(imgOrigin, imgSeg)
+            cv2.imwrite(args.saveName + "/Img/" + filePath + "EachPixel.jpg", imgPixel)
+            cv2.imwrite(args.saveName + "/Seg/" + filePath + "EachPixel.jpg", imgSeg)
+            f.write(args.saveName + "/Img/" + filePath + "EachPixel.jpg" + "\t" + args.saveName + "/Seg/" + filePath + "EachPixel.jpg\n")
+        elif(args.chouseFunction == 2):
+            cv2.imwrite(args.saveName + "/Img/" + filePath + "SameColor.jpg", imgOrigin)
+            cv2.imwrite(args.saveName + "/Seg/" + filePath + "SameColor.jpg", imgSeg)
+            f.write(args.saveName + "/Img/" + filePath + "SameColor.jpg" + "\t" + args.saveName + "/Seg/" + filePath + "SameColor.jpg\n")
+            for i in range(5):
+                imgSameColor = randomColorWithSameColorSpace(imgOrigin, imgSeg)
+                cv2.imwrite(args.saveName + "/Img/" + filePath + "SameColor" + str(i) + ".jpg", imgSameColor)
+                cv2.imwrite(args.saveName + "/Seg/" + filePath + "SameColor" + str(i) + ".jpg", imgSeg)
+                f.write(args.saveName + "/Img/" + filePath + "SameColor" + str(i) + ".jpg" + "\t" + args.saveName + "/Seg/" + filePath + "SameColor" + str(i) + ".jpg\n")
+
+        elif(args.chouseFunction == 3):
+            f.write(args.saveName + "/Img/" + filePath + "RandomOneSameColor.jpg" + "\t" + args.saveName + "/Seg/" + filePath + "RandomOneSameColor.jpg\n")
+            cv2.imwrite(args.saveName + "/Img/" + filePath + "RandomOneSameColor.jpg", imgOrigin)
+            cv2.imwrite(args.saveName + "/Seg/" + filePath + "RandomOneSameColor.jpg", imgSeg)
+
+            for i in range(5):
+                imgSameColor = randomOneColorWithSameColorSpace(imgOrigin, imgSeg)
+                cv2.imwrite(args.saveName + "/Img/" + filePath + "RandomOneSameColor" + str(i) + ".jpg", imgSameColor)
+                cv2.imwrite(args.saveName + "/Seg/" + filePath + "RandomOneSameColor" + str(i) + ".jpg", imgSeg)
+                f.write(args.saveName + "/Img/" + filePath + "RandomOneSameColor" + str(i) + ".jpg" + "\t" + args.saveName + "/Seg/" + filePath + "RandomOneSameColor" + str(i) + ".jpg\n")
+
+        elif(args.chouseFunction == 4):
+            imgBGR2HSV = changeColorBGRtoHSV(imgOrigin, imgSeg)
+            cv2.imwrite(args.saveName + "/Img/" + filePath + "HSV.jpg", imgBGR2HSV)
+            cv2.imwrite(args.saveName + "/Seg/" + filePath + "HSV.jpg", imgBGR2HSV)
+            f.write(args.saveName + "/Img/" + filePath + "HSV.jpg" + "\t" + args.saveName + "/Seg/" + filePath + "HSV.jpg\n")
+
+        elif(args.chouseFunction == 5):
+            f.write(args.saveName + "/Img/" + filePath + "HSVRandom.jpg" + "\t" + args.saveName + "/Seg/" + filePath + "HSVRandom.jpg\n")
+            cv2.imwrite(args.saveName + "/Img/" + filePath + "HSVRandom.jpg", imgOrigin)
+            cv2.imwrite(args.saveName + "/Seg/" + filePath + "HSVRandom.jpg", imgSeg)
+
+            for i in range(5):
+                imgBGR2HSVRandom = changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg)
+                cv2.imwrite(args.saveName + "/Img/" + filePath + "HSVRandom" + str(i) + ".jpg", imgBGR2HSVRandom)
+                cv2.imwrite(args.saveName + "/Seg/" + filePath + "HSVRandom" + str(i) + ".jpg", imgSeg)
+                f.write(args.saveName + "/Img/" + filePath + "HSVRandom" + str(i) + ".jpg" + "\t" + args.saveName + "/Seg/" + filePath + "HSVRandom" + str(i) + ".jpg\n")
+                
 if __name__ == '__main__':
     args = parser.parse_args()
-    if (args.printFunctionCode):
-       print("1.random each pixel")
-       print("2.random same color space for each BGR")
-       print("3.random same color space with one random")
-       print("4.change BGR color space to HSV color space")
-       print("5.change BGR to HSV and use random to change the color")
     main(args)

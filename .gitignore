@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Test Data folder
+Test/DAFunction/RandomColor/cityscapes
+Test/DAFunction/RandomColor/HSVRandom
