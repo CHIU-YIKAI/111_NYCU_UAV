@@ -129,7 +129,10 @@ dmypy.json
 .pyre/
 
 # Test Data folder
-Test/DAFunction/cityscapes
-Test/DAFunction/HSVRandom
+Test/DAFunction/RandomColor/cityscapes/
+Test/DAFunction/RandomColor/HSVRandom/
 Test/ImageResize/originData/*
 Test/ImageResize/outputData/*
+Test/LabelFinishToSegmentation/JPEGImages
+Test/LabelFinishToSegmentation/SegmentationClassPNG
+Test/LabelFinishToSegmentation/TransFinish
