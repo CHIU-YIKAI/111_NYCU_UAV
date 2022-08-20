@@ -110,7 +110,7 @@ def changeColorBGRtoHSV(imgOrigin, imgSeg):
                 imgNew[i,j] = imgHSV[i,j]
     return imgNew    
 
-def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg):
+def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg, listH):
     '''
     indtoduce
         This function is use to change oil area to the HSV color space
@@ -123,17 +123,13 @@ def changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg):
     imgHSV = cv2.cvtColor(imgOrigin, cv2.COLOR_BGR2HSV)
     imgNew = imgOrigin.copy()
     w, h ,_ = imgOrigin.shape
-    randomH = random.uniform(0, 2)
-    randomS = random.uniform(0, 2)
-    randomV = random.uniform(0, 2)
+    randomH = listH
     for i in range(w):
         for j in range(h):
             # 24 is the tag for oil segmentation
             if(imgSeg[i, j, 0] == 24):
                 imgHSV[i,j,0] = int(pow((imgHSV[i,j,0] / 180), randomH) * 180)
-                imgHSV[i,j,1] = int(pow((imgHSV[i,j,1] / 255), randomS) * 255)
                 
-                # imgHSV[i,j,2] = int(pow((imgHSV[i,j,2] / 255), randomV) * 255)
     imgNew = cv2.cvtColor(imgHSV, cv2.COLOR_HSV2BGR)
     return imgNew    
 
@@ -144,6 +140,8 @@ def main(args):
 
     filelist = os.listdir(originImgPath)
     segFileList = os.listdir(segImgPath)
+
+    powerList = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
     f = open(args.saveName + "list.lst", 'w')
 
     for i, filePath in enumerate(filelist):
@@ -188,8 +186,8 @@ def main(args):
             cv2.imwrite(args.saveName + "/Img/" + filePath + "HSVRandom.jpg", imgOrigin)
             cv2.imwrite(args.saveName + "/Seg/" + filePath + "HSVRandom.jpg", imgSeg)
 
-            for i in range(5):
-                imgBGR2HSVRandom = changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg)
+            for i in range(10):
+                imgBGR2HSVRandom = changeColorBGRtoHSVWithRandom(imgOrigin, imgSeg, powerList[i])
                 cv2.imwrite(args.saveName + "/Img/" + filePath + "HSVRandom" + str(i) + ".jpg", imgBGR2HSVRandom)
                 cv2.imwrite(args.saveName + "/Seg/" + filePath + "HSVRandom" + str(i) + ".jpg", imgSeg)
                 f.write(args.saveName + "/Img/" + filePath + "HSVRandom" + str(i) + ".jpg" + "\t" + args.saveName + "/Seg/" + filePath + "HSVRandom" + str(i) + ".jpg\n")
